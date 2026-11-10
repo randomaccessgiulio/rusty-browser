@@ -1,0 +1,10 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=Rusty Browser
+Comment=Browser in Rust con WebKitGTK
+Exec=rusty-browser
+Icon=rusty-browser
+Terminal=false
+Categories=Network;WebBrowser;
+StartupNotify=true

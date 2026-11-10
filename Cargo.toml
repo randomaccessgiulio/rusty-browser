@@ -1,0 +1,7 @@
+[package]
+name = "rusty-browser"
+version = "0.2.2"
+edition = "2024"
+description = "Browser desktop in Rust con motore WebKitGTK"
+
+[dependencies]
