@@ -52,7 +52,7 @@ sudo apt install rustc cargo dpkg libwebkit2gtk-4.1-0 curl
 
 ## Installazione
 
-Scarica `rusty-browser_0.2.2_amd64.deb` dalla cartella `dist/` del repository o dalla [pagina Releases](https://github.com/itsgiuliooo/rusty-browser/releases/latest), poi esegui dalla cartella in cui hai salvato il file:
+Scarica `rusty-browser_0.2.2_amd64.deb` dalla cartella `dist/` del repository o dalla [pagina Releases](https://github.com/randomaccessgiulio/rusty-browser/releases/latest), poi esegui dalla cartella in cui hai salvato il file:
 
 ```sh
 sudo apt install ./rusty-browser_0.2.2_amd64.deb
