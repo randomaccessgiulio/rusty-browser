@@ -1,4 +1,4 @@
-# old bad looking browser (a.k.a. A Rusty Browser)
+# Old, Ugly, Useless Browser(a.k.a. A Rusty Browser)
 
 Piccolo progetto personale:Browser desktop minimal scritto in Rust, con **WebKitGTK** come motore per visualizzare le pagine e supporto a javascript per la visione dei siti internet. 
 
