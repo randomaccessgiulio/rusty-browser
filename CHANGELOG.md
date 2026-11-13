@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.2.4
+
+- Corretto il problema per cui alcuni video, incluso YouTube, potevano non essere visualizzati dopo aver disattivato del tutto l'accelerazione hardware.
+- Impostata l'accelerazione hardware su richiesta del sito; restano disattivate cache delle risorse, cache back-forward e WebGL per contenere l'uso di memoria.
+- Aggiornata la documentazione per spiegare il compromesso tra memoria, compatibilità video e prestazioni.
+
 ## 0.2.3
 
 - Risolto il problema dell'uso eccessivo di RAM attribuito a WebKitGTK riducendo al minimo le cache, disattivando l'accelerazione hardware e mantenendo disattivati WebGL e la cache delle pagine.

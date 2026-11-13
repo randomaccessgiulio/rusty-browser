@@ -17,7 +17,7 @@ const WEBKIT_LOAD_REDIRECTED: c_int = 1;
 const WEBKIT_LOAD_COMMITTED: c_int = 2;
 const WEBKIT_LOAD_FINISHED: c_int = 3;
 const WEBKIT_CACHE_MODEL_DOCUMENT_VIEWER: c_int = 0;
-const WEBKIT_HARDWARE_ACCELERATION_POLICY_NEVER: c_int = 2;
+const WEBKIT_HARDWARE_ACCELERATION_POLICY_ON_DEMAND: c_int = 0;
 
 #[link(name = "libgtk-3.so.0", modifiers = "+verbatim")]
 unsafe extern "C" {
@@ -168,7 +168,7 @@ pub(crate) fn run() -> Result<(), String> {
             webkit_settings_set_enable_page_cache(settings, 0);
             webkit_settings_set_hardware_acceleration_policy(
                 settings,
-                WEBKIT_HARDWARE_ACCELERATION_POLICY_NEVER,
+                WEBKIT_HARDWARE_ACCELERATION_POLICY_ON_DEMAND,
             );
         }
 
