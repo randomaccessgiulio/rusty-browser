@@ -1,18 +1,19 @@
 # old bad looking browser (a.k.a. A Rusty Browser)
 
-Browser desktop minimale scritto in Rust, con **WebKitGTK** come motore per visualizzare le pagine. Versione corrente: **0.2.5**.
+Browser desktop minimale scritto in Rust, con **WebKitGTK** come motore per visualizzare le pagine. 
 
 ![Icona Rusty Browser](assets/rusty-browser.png)
 
 ## 1. Cos'è
 
-A Rusty Browser è una piccola applicazione per Linux con una barra degli indirizzi compatta e le funzioni essenziali di navigazione. WebKitGTK gestisce HTML, CSS, JavaScript, cookie e login, così le pagine interattive possono funzionare come in un browser moderno. È un progetto personale e in evoluzione, non un sostituto completo di Firefox o Chromium.
+A Rusty Browser è una piccola applicazione per Linux con una barra degli indirizzi compatta e le funzioni essenziali di navigazione. WebKitGTK gestisce HTML, CSS, JavaScript, cookie e login, così le pagine interattive possono funzionare come in un browser moderno. È un progetto personale e in evoluzione.
 
 ## 2. A chi si rivolge
 
 - A chi vuole una finestra browser essenziale, con i comandi principali sempre visibili.
 - A chi usa Ubuntu e preferisce un'applicazione Linux integrata con il motore WebKitGTK di sistema.
 - A chi vuole esplorare o contribuire a un piccolo progetto Rust con interfaccia GTK.
+- A chi vuole un browser leggero e che non salva nulla di quello che fa online, infatti non esiste cronologia e non vengono raccolti dati dal browser, garantendo all'utente il controllo totale sulla privacy
 
 ## 3. Perché provarlo
 
@@ -21,6 +22,7 @@ A Rusty Browser è una piccola applicazione per Linux con una barra degli indiri
 - JavaScript e cookie attivi per accedere a siti interattivi e account.
 - Impostazioni WebKitGTK orientate a contenere l'uso di memoria: budget di pressione memoria da 512 MB per processo web, cache delle pagine e WebGL disattivati; accelerazione hardware usata solo quando richiesta dal sito.
 - Codice Rust e pacchetto Debian riproducibile con lo script incluso.
+- Non traccia e non salva nulla, quindi si ha un controllo totale sulla propria attività online.
 
 ## 4. Requisiti e risorse
 
