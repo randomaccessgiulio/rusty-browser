@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.2.3
+
+- Risolto il problema dell'uso eccessivo di RAM attribuito a WebKitGTK riducendo al minimo le cache, disattivando l'accelerazione hardware e mantenendo disattivati WebGL e la cache delle pagine.
+- Aggiornata la documentazione per spiegare le modifiche e i compromessi: maggiore uso possibile della CPU, ricaricamenti più lenti e nessun limite fisso alla memoria usata dalle pagine o dai video.
+
 ## 0.2.2
 
 - Aggiunta la nuova icona vettoriale del progetto e collegata al menu applicazioni e alla finestra.

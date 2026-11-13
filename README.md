@@ -1,6 +1,6 @@
 # old bad looking browser (a.k.a. A Rusty Browser)
 
-Browser desktop minimale scritto in Rust, con **WebKitGTK** come motore per visualizzare le pagine. Versione corrente: **0.2.2**.
+Browser desktop minimale scritto in Rust, con **WebKitGTK** come motore per visualizzare le pagine. Versione corrente: **0.2.3**.
 
 ![Icona Rusty Browser](assets/rusty-browser.png)
 
@@ -19,10 +19,10 @@ A Rusty Browser è una piccola applicazione per Linux con una barra degli indiri
 - Interfaccia ridotta a indirizzo, vai, indietro, avanti e ricarica.
 - Motore WebKitGTK aggiornato tramite gli aggiornamenti del sistema.
 - JavaScript e cookie attivi per accedere a siti interattivi e account.
-- Cache e funzioni grafiche non essenziali limitate per contenere l'uso di memoria.
+- Impostazioni WebKitGTK aggressive per contenere l'uso di memoria: cache delle risorse, cache delle pagine, WebGL e accelerazione hardware disattivati.
 - Codice Rust e pacchetto Debian riproducibile con lo script incluso.
 
-La cache delle pagine e WebGL sono disattivati: la cronologia può ricaricare le pagine e i siti con grafica 3D WebGL potrebbero avere funzioni limitate. I consumi dipendono soprattutto dal sito aperto; non è dichiarato un requisito minimo di RAM misurato.
+La release 0.2.3 interviene sull'uso eccessivo di RAM attribuito a WebKitGTK disattivando anche la cache delle risorse e l'accelerazione hardware. Questo riduce memoria usata dalle cache e dal rendering accelerato, ma non impone un limite assoluto alla RAM: pagine complesse e video come YouTube possono comunque usare molta memoria per JavaScript, immagini e buffer video. Senza accelerazione hardware, il processore può lavorare di più e video, animazioni o alcuni siti possono risultare più lenti o non essere renderizzati correttamente. Le pagine non vengono conservate in cache e possono impiegare più tempo a ricaricarsi; WebGL resta disattivato, quindi i siti 3D basati su WebGL hanno funzioni limitate.
 
 ## 4. Requisiti e risorse
 
@@ -52,10 +52,10 @@ sudo apt install rustc cargo dpkg libwebkit2gtk-4.1-0 curl
 
 ## Installazione
 
-Scarica `rusty-browser_0.2.2_amd64.deb` dalla cartella `dist/` del repository o dalla [pagina Releases](https://github.com/randomaccessgiulio/rusty-browser/releases/latest), poi esegui dalla cartella in cui hai salvato il file:
+Scarica `rusty-browser_0.2.3_amd64.deb` dalla cartella `dist/` del repository o dalla [pagina Releases](https://github.com/randomaccessgiulio/rusty-browser/releases/latest), poi esegui dalla cartella in cui hai salvato il file:
 
 ```sh
-sudo apt install ./rusty-browser_0.2.2_amd64.deb
+sudo apt install ./rusty-browser_0.2.3_amd64.deb
 ```
 
 L'installazione aggiunge Rusty Browser al menu applicazioni. Per rimuoverlo:

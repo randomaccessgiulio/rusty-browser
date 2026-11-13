@@ -16,7 +16,8 @@ const WEBKIT_LOAD_STARTED: c_int = 0;
 const WEBKIT_LOAD_REDIRECTED: c_int = 1;
 const WEBKIT_LOAD_COMMITTED: c_int = 2;
 const WEBKIT_LOAD_FINISHED: c_int = 3;
-const WEBKIT_CACHE_MODEL_DOCUMENT_BROWSER: c_int = 2;
+const WEBKIT_CACHE_MODEL_DOCUMENT_VIEWER: c_int = 0;
+const WEBKIT_HARDWARE_ACCELERATION_POLICY_NEVER: c_int = 2;
 
 #[link(name = "libgtk-3.so.0", modifiers = "+verbatim")]
 unsafe extern "C" {
@@ -74,6 +75,7 @@ unsafe extern "C" {
     fn webkit_settings_set_enable_javascript(settings: *mut c_void, enabled: c_int);
     fn webkit_settings_set_enable_webgl(settings: *mut c_void, enabled: c_int);
     fn webkit_settings_set_enable_page_cache(settings: *mut c_void, enabled: c_int);
+    fn webkit_settings_set_hardware_acceleration_policy(settings: *mut c_void, policy: c_int);
 }
 
 #[link(name = "libgobject-2.0.so.0", modifiers = "+verbatim")]
@@ -136,7 +138,7 @@ pub(crate) fn run() -> Result<(), String> {
 
         let context = webkit_web_context_get_default();
         if !context.is_null() {
-            webkit_web_context_set_cache_model(context, WEBKIT_CACHE_MODEL_DOCUMENT_BROWSER);
+            webkit_web_context_set_cache_model(context, WEBKIT_CACHE_MODEL_DOCUMENT_VIEWER);
         }
 
         let web_view = webkit_web_view_new();
@@ -164,6 +166,10 @@ pub(crate) fn run() -> Result<(), String> {
             webkit_settings_set_enable_javascript(settings, 1);
             webkit_settings_set_enable_webgl(settings, 0);
             webkit_settings_set_enable_page_cache(settings, 0);
+            webkit_settings_set_hardware_acceleration_policy(
+                settings,
+                WEBKIT_HARDWARE_ACCELERATION_POLICY_NEVER,
+            );
         }
 
         let mut ui = Box::new(Ui {
