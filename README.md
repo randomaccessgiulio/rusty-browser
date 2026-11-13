@@ -22,7 +22,6 @@ A Rusty Browser è una piccola applicazione per Linux con una barra degli indiri
 - Impostazioni WebKitGTK orientate a contenere l'uso di memoria: cache delle risorse, cache delle pagine e WebGL disattivati; accelerazione hardware usata solo quando richiesta dal sito.
 - Codice Rust e pacchetto Debian riproducibile con lo script incluso.
 
-La release 0.2.3 aveva disattivato completamente l'accelerazione hardware per ridurre la RAM, ma questo poteva impedire la visualizzazione di alcuni video. Dalla 0.2.4 WebKitGTK può attivarla quando la pagina ne ha bisogno, mantenendo disattivate la cache delle risorse, la cache back-forward e WebGL. Questo compromesso riduce l'uso di memoria delle cache senza forzare il rendering software per i video. Non impone un limite assoluto alla RAM: pagine complesse e video come YouTube possono comunque usare molta memoria; il consumo effettivo varia in base al sito e al video. Le risorse non vengono messe in cache e possono impiegare più tempo a ricaricarsi; WebGL resta disattivato, quindi i siti 3D basati su WebGL hanno funzioni limitate.
 
 ## 4. Requisiti e risorse
 
