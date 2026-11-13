@@ -1,6 +1,6 @@
 # old bad looking browser (a.k.a. A Rusty Browser)
 
-Browser desktop minimale scritto in Rust, con **WebKitGTK** come motore per visualizzare le pagine. Versione corrente: **0.2.4**.
+Browser desktop minimale scritto in Rust, con **WebKitGTK** come motore per visualizzare le pagine. 
 
 ![Icona Rusty Browser](assets/rusty-browser.png)
 
@@ -31,7 +31,6 @@ A Rusty Browser è una piccola applicazione per Linux con una barra degli indiri
 - Una sessione grafica Linux, X11 o Wayland.
 - `libwebkit2gtk-4.1-0`, che porta con sé GTK 3 e le altre librerie runtime richieste.
 - `curl`, usato solo dalla modalità testuale.
-- Connessione internet per visitare siti web.
 
 Il pacchetto Debian dichiara le dipendenze runtime; `apt` le risolve automaticamente.
 
@@ -65,7 +64,7 @@ sudo apt remove rusty-browser
 
 ## Avvio e uso
 
-Avvia ** A Rusty Browser** dal menu applicazioni. Scrivi un indirizzo completo, ad esempio `https://chatgpt.com`, oppure una ricerca, nella barra superiore e premi Invio o **Vai**. Usa le frecce per la cronologia e il simbolo di ricarica per aggiornare la pagina; passa il puntatore sui pulsanti per leggerne le etichette.
+Avvia ** A Rusty Browser** dal menu applicazioni. Scrivi un indirizzo completo, oppure una ricerca, nella barra superiore e premi Invio o **Vai**. Usa le frecce per la cronologia e il simbolo di ricarica per aggiornare la pagina; passa il puntatore sui pulsanti per leggerne le etichette.
 
 La modalità grafica è quella predefinita:
 
