@@ -61,9 +61,7 @@ unsafe extern "C" {
 
 #[link(name = "libwebkit2gtk-4.1.so.0", modifiers = "+verbatim")]
 unsafe extern "C" {
-    fn webkit_web_context_get_default() -> *mut c_void;
     fn webkit_web_context_get_type() -> usize;
-    fn webkit_web_context_get_website_data_manager(context: *mut c_void) -> *mut c_void;
     fn webkit_web_context_set_cache_model(context: *mut c_void, cache_model: c_int);
     fn webkit_web_view_new_with_context(context: *mut c_void) -> *mut Widget;
     fn webkit_web_view_load_uri(web_view: *mut Widget, uri: *const c_char);
@@ -86,10 +84,9 @@ unsafe extern "C" {
     fn webkit_memory_pressure_settings_set_conservative_threshold(settings: *mut c_void, value: f64);
     fn webkit_memory_pressure_settings_set_strict_threshold(settings: *mut c_void, value: f64);
     fn webkit_memory_pressure_settings_set_kill_threshold(settings: *mut c_void, value: f64);
-    fn webkit_website_data_manager_get_base_data_directory(manager: *mut c_void) -> *const c_char;
-    fn webkit_website_data_manager_get_base_cache_directory(manager: *mut c_void) -> *const c_char;
-    fn webkit_website_data_manager_new(first_property_name: *const c_char, ...) -> *mut c_void;
+    fn webkit_website_data_manager_new_ephemeral() -> *mut c_void;
     fn webkit_website_data_manager_set_memory_pressure_settings(settings: *mut c_void);
+    fn webkit_download_cancel(download: *mut c_void);
 }
 
 #[link(name = "libgobject-2.0.so.0", modifiers = "+verbatim")]
@@ -153,10 +150,16 @@ pub(crate) fn run() -> Result<(), String> {
         gtk_widget_set_margin_top(toolbar, 5);
         gtk_widget_set_margin_bottom(toolbar, 5);
 
-        let web_context = memory_limited_web_context();
+        let web_context = ephemeral_memory_limited_web_context();
         if web_context.is_null() {
             return Err("non riesco a creare il contesto WebKitGTK".to_owned());
         }
+        connect(
+            web_context,
+            "download-started",
+            on_download_started as *const (),
+            ptr::null_mut(),
+        );
         webkit_web_context_set_cache_model(web_context, WEBKIT_CACHE_MODEL_DOCUMENT_VIEWER);
 
         let web_view = webkit_web_view_new_with_context(web_context);
@@ -228,7 +231,7 @@ pub(crate) fn run() -> Result<(), String> {
     Ok(())
 }
 
-unsafe fn memory_limited_web_context() -> *mut c_void {
+unsafe fn ephemeral_memory_limited_web_context() -> *mut c_void {
     let settings = webkit_memory_pressure_settings_new();
     if settings.is_null() {
         return ptr::null_mut();
@@ -247,30 +250,9 @@ unsafe fn memory_limited_web_context() -> *mut c_void {
     // the WebKit network process also receives it.
     webkit_website_data_manager_set_memory_pressure_settings(settings);
 
-    // Reuse the standard WebKit profile directories so cookies and logins stay
-    // available while constructing a context with construct-only settings.
-    let default_context = webkit_web_context_get_default();
-    if default_context.is_null() {
-        webkit_memory_pressure_settings_free(settings);
-        return ptr::null_mut();
-    }
-    let default_manager = webkit_web_context_get_website_data_manager(default_context);
-    if default_manager.is_null() {
-        webkit_memory_pressure_settings_free(settings);
-        return ptr::null_mut();
-    }
-
-    let data_directory = webkit_website_data_manager_get_base_data_directory(default_manager);
-    let cache_directory = webkit_website_data_manager_get_base_cache_directory(default_manager);
-    let data_property = cstring("base-data-directory");
-    let cache_property = cstring("base-cache-directory");
-    let manager = webkit_website_data_manager_new(
-        data_property.as_ptr(),
-        data_directory,
-        cache_property.as_ptr(),
-        cache_directory,
-        ptr::null::<c_char>(),
-    );
+    // An ephemeral manager keeps cookies, site storage and cache out of the
+    // persistent profile. Its contents disappear when the browser closes.
+    let manager = webkit_website_data_manager_new_ephemeral();
     if manager.is_null() {
         webkit_memory_pressure_settings_free(settings);
         return ptr::null_mut();
@@ -290,6 +272,15 @@ unsafe fn memory_limited_web_context() -> *mut c_void {
     webkit_memory_pressure_settings_free(settings);
     g_object_unref(manager);
     context
+}
+
+unsafe extern "C" fn on_download_started(
+    _context: *mut Widget,
+    download: *mut c_void,
+    _user_data: *mut c_void,
+) {
+    // Downloads would create files outside WebKit's temporary profile.
+    webkit_download_cancel(download);
 }
 
 unsafe fn button(label: &str, tooltip: &str) -> *mut Widget {

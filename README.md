@@ -1,28 +1,35 @@
-# Old, Ugly, Useless Browser (a.k.a. Rusty Browser)
+# old bad looking browser (a.k.a. A Rusty Browser)
 
-Piccolo progetto personale:Browser desktop minimal scritto in Rust, con **WebKitGTK** come motore per visualizzare le pagine e supporto a javascript per la visione dei siti internet. 
+Browser desktop minimale scritto in Rust, con **WebKitGTK** come motore per visualizzare le pagine. Versione corrente: **0.2.6**.
 
 ![Icona Rusty Browser](assets/rusty-browser.png)
 
 ## 1. Cos'è
 
-A Rusty Browser è una piccola applicazione per Linux con una barra degli indirizzi compatta e le funzioni essenziali di navigazione. WebKitGTK gestisce HTML, CSS, JavaScript, cookie e login, così le pagine interattive possono funzionare come in un browser moderno. È un progetto personale e in evoluzione.
+A Rusty Browser è una piccola applicazione per Linux con una barra degli indirizzi compatta e le funzioni essenziali di navigazione. WebKitGTK gestisce HTML, CSS, JavaScript, cookie e login solo per la sessione aperta. Alla chiusura, i dati dei siti vengono scartati. È un progetto personale e in evoluzione, non un sostituto completo di Firefox o Chromium.
 
 ## 2. A chi si rivolge
 
 - A chi vuole una finestra browser essenziale, con i comandi principali sempre visibili.
 - A chi usa Ubuntu e preferisce un'applicazione Linux integrata con il motore WebKitGTK di sistema.
 - A chi vuole esplorare o contribuire a un piccolo progetto Rust con interfaccia GTK.
-- A chi vuole un browser leggero e che non salva nulla di quello che fa online, infatti non esiste cronologia e non vengono raccolti dati dal browser, garantendo all'utente il controllo totale sulla privacy
 
 ## 3. Perché provarlo
 
 - Interfaccia ridotta a indirizzo, vai, indietro, avanti e ricarica.
 - Motore WebKitGTK aggiornato tramite gli aggiornamenti del sistema.
-- JavaScript e cookie attivi per accedere a siti interattivi e account.
+- JavaScript attivo; accessi e cookie funzionano durante la sessione e vengono scartati alla chiusura.
+- Navigazione temporanea: i dati dei siti non vengono conservati tra un avvio e l'altro.
 - Impostazioni WebKitGTK orientate a contenere l'uso di memoria: budget di pressione memoria da 512 MB per processo web, cache delle pagine e WebGL disattivati; accelerazione hardware usata solo quando richiesta dal sito.
 - Codice Rust e pacchetto Debian riproducibile con lo script incluso.
-- Non traccia e non salva nulla, quindi si ha un controllo totale sulla propria attività online.
+
+La release 0.2.3 aveva disattivato completamente l'accelerazione hardware per ridurre la RAM, ma questo poteva impedire la visualizzazione di alcuni video. Dalla 0.2.4 WebKitGTK può attivarla quando la pagina ne ha bisogno. La 0.2.5 aggiunge una soglia di pressione memoria da 512 MB per ciascun processo web; WebKit prova a liberare memoria non essenziale quando serve. La 0.2.6 usa un profilo temporaneo che non conserva cookie, accessi, archiviazione dei siti o cache dopo la chiusura; i download vengono annullati per evitare di salvare file. La soglia RAM resta una richiesta di recupero, non un tetto rigido. Cache delle pagine e WebGL restano disattivati; i siti 3D basati su WebGL hanno funzioni limitate.
+
+## Privacy e dati locali
+
+Ogni avvio crea una sessione WebKit temporanea. Cookie, accessi, archiviazione dei siti e cache restano disponibili mentre il browser è aperto, poi vengono scartati. Rusty Browser non registra una cronologia di navigazione e annulla i download invece di salvare file. Per questo dovrai accedere di nuovo ai siti a ogni avvio.
+
+Questa impostazione riguarda i dati locali di Rusty Browser: non può cancellare l'attività già registrata dai siti web, dai servizi in cui accedi, dalla rete o dal provider internet. I dati persistenti lasciati da versioni precedenti di WebKitGTK non vengono rimossi automaticamente.
 
 ## 4. Requisiti e risorse
 
@@ -51,10 +58,10 @@ sudo apt install rustc cargo dpkg libwebkit2gtk-4.1-0 curl
 
 ## Installazione
 
-Scarica `rusty-browser_0.2.5_amd64.deb` dalla cartella `dist/` del repository o dalla [pagina Releases](https://github.com/randomaccessgiulio/rusty-browser/releases/latest), poi esegui dalla cartella in cui hai salvato il file:
+Scarica `rusty-browser_0.2.6_amd64.deb` dalla cartella `dist/` del repository o dalla [pagina Releases](https://github.com/randomaccessgiulio/rusty-browser/releases/latest), poi esegui dalla cartella in cui hai salvato il file:
 
 ```sh
-sudo apt install ./rusty-browser_0.2.5_amd64.deb
+sudo apt install ./rusty-browser_0.2.6_amd64.deb
 ```
 
 L'installazione aggiunge Rusty Browser al menu applicazioni. Per rimuoverlo:
@@ -104,4 +111,4 @@ La licenza non è ancora stata definita dall'autore.
 
 ## Crediti
 
-Vedi [CREDITS.md](CREDITS.md): il progetto è ideato da **Giulio (@itsgiuliooo)** con il supporto di **ChatGPT**
+Vedi [CREDITS.md](CREDITS.md): il progetto è ideato da **Giulio (@itsgiuliooo)** con il supporto di **ChatGPT** per progettazione, sviluppo, icona e documentazione.

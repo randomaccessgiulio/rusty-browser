@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.2.6
+
+- Attivato un profilo WebKitGTK temporaneo: cookie, accessi, cache e dati dei siti non vengono conservati dopo la chiusura.
+- Annullati i download per evitare che il browser salvi file sul computer.
+- Aggiornata la documentazione chiarendo i limiti rispetto ai dati già conservati dai siti e alle versioni precedenti.
+
 ## 0.2.5
 
 - Aggiunta la gestione della pressione memoria WebKitGTK con budget di 512 MB per processo web e processo di rete, chiedendo al motore di liberare memoria non essenziale quando serve.
