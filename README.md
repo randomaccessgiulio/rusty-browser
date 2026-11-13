@@ -1,6 +1,6 @@
 # old bad looking browser (a.k.a. A Rusty Browser)
 
-Browser desktop minimale scritto in Rust, con **WebKitGTK** come motore per visualizzare le pagine. 
+Browser desktop minimale scritto in Rust, con **WebKitGTK** come motore per visualizzare le pagine. Versione corrente: **0.2.5**.
 
 ![Icona Rusty Browser](assets/rusty-browser.png)
 
@@ -19,9 +19,10 @@ A Rusty Browser è una piccola applicazione per Linux con una barra degli indiri
 - Interfaccia ridotta a indirizzo, vai, indietro, avanti e ricarica.
 - Motore WebKitGTK aggiornato tramite gli aggiornamenti del sistema.
 - JavaScript e cookie attivi per accedere a siti interattivi e account.
-- Impostazioni WebKitGTK orientate a contenere l'uso di memoria: cache delle risorse, cache delle pagine e WebGL disattivati; accelerazione hardware usata solo quando richiesta dal sito.
+- Impostazioni WebKitGTK orientate a contenere l'uso di memoria: budget di pressione memoria da 512 MB per processo web, cache delle pagine e WebGL disattivati; accelerazione hardware usata solo quando richiesta dal sito.
 - Codice Rust e pacchetto Debian riproducibile con lo script incluso.
 
+La release 0.2.3 aveva disattivato completamente l'accelerazione hardware per ridurre la RAM, ma questo poteva impedire la visualizzazione di alcuni video. Dalla 0.2.4 WebKitGTK può attivarla quando la pagina ne ha bisogno. La 0.2.5 aggiunge una soglia di pressione memoria da 512 MB per ciascun processo web: superate le soglie interne, WebKit prova a liberare memoria non essenziale e dati in cache. Il processo di rete riceve la stessa impostazione. È una richiesta di recupero della memoria, non un tetto rigido: pagine complesse e video, incluso YouTube, possono ancora superare la soglia, ma WebKit dovrebbe contenere meglio i picchi. La pagina non viene chiusa automaticamente. Se il sistema è molto sotto pressione, la pulizia può rendere temporaneamente meno fluida la pagina. Cache delle pagine e WebGL restano disattivati; i siti 3D basati su WebGL hanno funzioni limitate.
 
 ## 4. Requisiti e risorse
 
@@ -29,7 +30,7 @@ A Rusty Browser è una piccola applicazione per Linux con una barra degli indiri
 
 - Ubuntu **26.10**, architettura **amd64** (Intel/AMD a 64 bit).
 - Una sessione grafica Linux, X11 o Wayland.
-- `libwebkit2gtk-4.1-0`, che porta con sé GTK 3 e le altre librerie runtime richieste.
+- `libwebkit2gtk-4.1-0` versione **2.34 o successiva**, che porta con sé GTK 3 e le altre librerie runtime richieste.
 - `curl`, usato solo dalla modalità testuale.
 
 Il pacchetto Debian dichiara le dipendenze runtime; `apt` le risolve automaticamente.
@@ -50,10 +51,10 @@ sudo apt install rustc cargo dpkg libwebkit2gtk-4.1-0 curl
 
 ## Installazione
 
-Scarica `rusty-browser_0.2.4_amd64.deb` dalla cartella `dist/` del repository o dalla [pagina Releases](https://github.com/randomaccessgiulio/rusty-browser/releases/latest), poi esegui dalla cartella in cui hai salvato il file:
+Scarica `rusty-browser_0.2.5_amd64.deb` dalla cartella `dist/` del repository o dalla [pagina Releases](https://github.com/randomaccessgiulio/rusty-browser/releases/latest), poi esegui dalla cartella in cui hai salvato il file:
 
 ```sh
-sudo apt install ./rusty-browser_0.2.4_amd64.deb
+sudo apt install ./rusty-browser_0.2.5_amd64.deb
 ```
 
 L'installazione aggiunge Rusty Browser al menu applicazioni. Per rimuoverlo:

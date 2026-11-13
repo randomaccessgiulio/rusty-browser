@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.2.5
+
+- Aggiunta la gestione della pressione memoria WebKitGTK con budget di 512 MB per processo web e processo di rete, chiedendo al motore di liberare memoria non essenziale quando serve.
+- Conservati i dati web esistenti, inclusi cookie e login, usando le stesse cartelle profilo.
+- Aggiornati requisiti e documentazione sui limiti della soglia: è adattiva e non garantisce un tetto massimo assoluto.
+
 ## 0.2.4
 
 - Corretto il problema per cui alcuni video, incluso YouTube, potevano non essere visualizzati dopo aver disattivato del tutto l'accelerazione hardware.

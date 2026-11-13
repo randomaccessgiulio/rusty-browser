@@ -18,6 +18,7 @@ const WEBKIT_LOAD_COMMITTED: c_int = 2;
 const WEBKIT_LOAD_FINISHED: c_int = 3;
 const WEBKIT_CACHE_MODEL_DOCUMENT_VIEWER: c_int = 0;
 const WEBKIT_HARDWARE_ACCELERATION_POLICY_ON_DEMAND: c_int = 0;
+const WEBKIT_MEMORY_LIMIT_MB: c_uint = 512;
 
 #[link(name = "libgtk-3.so.0", modifiers = "+verbatim")]
 unsafe extern "C" {
@@ -60,9 +61,11 @@ unsafe extern "C" {
 
 #[link(name = "libwebkit2gtk-4.1.so.0", modifiers = "+verbatim")]
 unsafe extern "C" {
-    fn webkit_web_view_new() -> *mut Widget;
     fn webkit_web_context_get_default() -> *mut c_void;
+    fn webkit_web_context_get_type() -> usize;
+    fn webkit_web_context_get_website_data_manager(context: *mut c_void) -> *mut c_void;
     fn webkit_web_context_set_cache_model(context: *mut c_void, cache_model: c_int);
+    fn webkit_web_view_new_with_context(context: *mut c_void) -> *mut Widget;
     fn webkit_web_view_load_uri(web_view: *mut Widget, uri: *const c_char);
     fn webkit_web_view_get_uri(web_view: *mut Widget) -> *const c_char;
     fn webkit_web_view_get_title(web_view: *mut Widget) -> *const c_char;
@@ -76,10 +79,23 @@ unsafe extern "C" {
     fn webkit_settings_set_enable_webgl(settings: *mut c_void, enabled: c_int);
     fn webkit_settings_set_enable_page_cache(settings: *mut c_void, enabled: c_int);
     fn webkit_settings_set_hardware_acceleration_policy(settings: *mut c_void, policy: c_int);
+    fn webkit_memory_pressure_settings_new() -> *mut c_void;
+    fn webkit_memory_pressure_settings_free(settings: *mut c_void);
+    fn webkit_memory_pressure_settings_set_memory_limit(settings: *mut c_void, memory_limit: c_uint);
+    fn webkit_memory_pressure_settings_set_poll_interval(settings: *mut c_void, seconds: f64);
+    fn webkit_memory_pressure_settings_set_conservative_threshold(settings: *mut c_void, value: f64);
+    fn webkit_memory_pressure_settings_set_strict_threshold(settings: *mut c_void, value: f64);
+    fn webkit_memory_pressure_settings_set_kill_threshold(settings: *mut c_void, value: f64);
+    fn webkit_website_data_manager_get_base_data_directory(manager: *mut c_void) -> *const c_char;
+    fn webkit_website_data_manager_get_base_cache_directory(manager: *mut c_void) -> *const c_char;
+    fn webkit_website_data_manager_new(first_property_name: *const c_char, ...) -> *mut c_void;
+    fn webkit_website_data_manager_set_memory_pressure_settings(settings: *mut c_void);
 }
 
 #[link(name = "libgobject-2.0.so.0", modifiers = "+verbatim")]
 unsafe extern "C" {
+    fn g_object_new(object_type: usize, first_property_name: *const c_char, ...) -> *mut c_void;
+    fn g_object_unref(object: *mut c_void);
     fn g_signal_connect_data(
         instance: *mut c_void,
         detailed_signal: *const c_char,
@@ -92,6 +108,7 @@ unsafe extern "C" {
 
 struct Ui {
     window: *mut Widget,
+    web_context: *mut c_void,
     address: *mut Widget,
     web_view: *mut Widget,
     status: *mut Widget,
@@ -136,13 +153,15 @@ pub(crate) fn run() -> Result<(), String> {
         gtk_widget_set_margin_top(toolbar, 5);
         gtk_widget_set_margin_bottom(toolbar, 5);
 
-        let context = webkit_web_context_get_default();
-        if !context.is_null() {
-            webkit_web_context_set_cache_model(context, WEBKIT_CACHE_MODEL_DOCUMENT_VIEWER);
+        let web_context = memory_limited_web_context();
+        if web_context.is_null() {
+            return Err("non riesco a creare il contesto WebKitGTK".to_owned());
         }
+        webkit_web_context_set_cache_model(web_context, WEBKIT_CACHE_MODEL_DOCUMENT_VIEWER);
 
-        let web_view = webkit_web_view_new();
+        let web_view = webkit_web_view_new_with_context(web_context);
         if web_view.is_null() {
+            g_object_unref(web_context);
             return Err("il motore WebKitGTK non è disponibile".to_owned());
         }
         gtk_widget_set_hexpand(web_view, 1);
@@ -174,6 +193,7 @@ pub(crate) fn run() -> Result<(), String> {
 
         let mut ui = Box::new(Ui {
             window,
+            web_context,
             address,
             web_view,
             status,
@@ -202,9 +222,74 @@ pub(crate) fn run() -> Result<(), String> {
         gtk_widget_show_all(window);
         gtk_widget_grab_focus(address);
         gtk_main();
+        g_object_unref(ui.web_context);
         drop(ui);
     }
     Ok(())
+}
+
+unsafe fn memory_limited_web_context() -> *mut c_void {
+    let settings = webkit_memory_pressure_settings_new();
+    if settings.is_null() {
+        return ptr::null_mut();
+    }
+
+    // WebKit uses these thresholds to reclaim caches and other disposable data
+    // before memory pressure becomes critical. A zero kill threshold keeps it
+    // from terminating a page just because it crossed the configured budget.
+    webkit_memory_pressure_settings_set_memory_limit(settings, WEBKIT_MEMORY_LIMIT_MB);
+    webkit_memory_pressure_settings_set_poll_interval(settings, 20.0);
+    webkit_memory_pressure_settings_set_conservative_threshold(settings, 0.65);
+    webkit_memory_pressure_settings_set_strict_threshold(settings, 0.85);
+    webkit_memory_pressure_settings_set_kill_threshold(settings, 0.0);
+
+    // The setting must be installed before a WebsiteDataManager is created so
+    // the WebKit network process also receives it.
+    webkit_website_data_manager_set_memory_pressure_settings(settings);
+
+    // Reuse the standard WebKit profile directories so cookies and logins stay
+    // available while constructing a context with construct-only settings.
+    let default_context = webkit_web_context_get_default();
+    if default_context.is_null() {
+        webkit_memory_pressure_settings_free(settings);
+        return ptr::null_mut();
+    }
+    let default_manager = webkit_web_context_get_website_data_manager(default_context);
+    if default_manager.is_null() {
+        webkit_memory_pressure_settings_free(settings);
+        return ptr::null_mut();
+    }
+
+    let data_directory = webkit_website_data_manager_get_base_data_directory(default_manager);
+    let cache_directory = webkit_website_data_manager_get_base_cache_directory(default_manager);
+    let data_property = cstring("base-data-directory");
+    let cache_property = cstring("base-cache-directory");
+    let manager = webkit_website_data_manager_new(
+        data_property.as_ptr(),
+        data_directory,
+        cache_property.as_ptr(),
+        cache_directory,
+        ptr::null::<c_char>(),
+    );
+    if manager.is_null() {
+        webkit_memory_pressure_settings_free(settings);
+        return ptr::null_mut();
+    }
+
+    let memory_property = cstring("memory-pressure-settings");
+    let manager_property = cstring("website-data-manager");
+    let context = g_object_new(
+        webkit_web_context_get_type(),
+        memory_property.as_ptr(),
+        settings,
+        manager_property.as_ptr(),
+        manager,
+        ptr::null::<c_char>(),
+    );
+
+    webkit_memory_pressure_settings_free(settings);
+    g_object_unref(manager);
+    context
 }
 
 unsafe fn button(label: &str, tooltip: &str) -> *mut Widget {

@@ -3,7 +3,7 @@ set -eu
 
 project_dir=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
 output_dir=$(dirname -- "$project_dir")
-package_version=0.2.4
+package_version=0.2.5
 architecture=$(dpkg --print-architecture)
 
 if [ "$architecture" != "amd64" ]; then
@@ -33,7 +33,7 @@ Version: $package_version
 Section: web
 Priority: optional
 Architecture: $architecture
-Depends: libc6, libwebkit2gtk-4.1-0, curl
+Depends: libc6, libwebkit2gtk-4.1-0 (>= 2.34.0), curl
 Maintainer: Local package <local@localhost>
 Description: Browser web scritto in Rust con motore WebKitGTK
  Browser desktop minimale con supporto JavaScript, CSS, cookie,
