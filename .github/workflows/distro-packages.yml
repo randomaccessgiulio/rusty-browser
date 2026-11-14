@@ -24,7 +24,7 @@ jobs:
     container: fedora:latest
     steps:
       - name: Install build dependencies
-        run: dnf install -y cargo rust rpm-build pkgconf-pkg-config gtk3-devel webkit2gtk4.1-devel curl nodejs git tar gzip
+        run: dnf install -y cargo rust gcc rpm-build gtk3 webkit2gtk4.1 curl git tar gzip
       - uses: actions/checkout@v4
         with:
           ref: ${{ github.event.release.tag_name || inputs.source_ref }}
@@ -42,7 +42,7 @@ jobs:
     container: opensuse/tumbleweed:latest
     steps:
       - name: Install build dependencies
-        run: zypper --non-interactive install cargo rust rpm-build pkg-config gtk3-devel webkitgtk3-devel curl nodejs git tar gzip
+        run: zypper --non-interactive install cargo rust gcc rpm-build libgtk-3-0 libwebkit2gtk-4_1-0 curl git tar gzip
       - uses: actions/checkout@v4
         with:
           ref: ${{ github.event.release.tag_name || inputs.source_ref }}
@@ -60,7 +60,7 @@ jobs:
     container: archlinux:base-devel
     steps:
       - name: Install build dependencies
-        run: pacman -Syu --noconfirm --needed git rust gtk3 webkit2gtk-4.1 curl nodejs
+        run: pacman -Syu --noconfirm --needed git rust gtk3 webkit2gtk-4.1 curl
       - uses: actions/checkout@v4
         with:
           ref: ${{ github.event.release.tag_name || inputs.source_ref }}
