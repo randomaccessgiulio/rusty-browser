@@ -93,7 +93,7 @@ Per openSUSE Tumbleweed x86_64, scarica l'RPM `rusty-browser-0.2.8-1*.rpm` e ins
 sudo zypper install ./rusty-browser-0.2.8-1*.rpm
 ```
 
-Per creare l'RPM dai sorgenti servono Rust/Cargo, `rpm-build`, `pkg-config`, GTK 3 e i file di sviluppo WebKitGTK 4.1 (`webkit2gtk4.1-devel` su Fedora; `webkitgtk3-devel` su Tumbleweed). Lo script in `packaging/rpm/` rileva le dipendenze runtime native tramite RPM.
+Per creare l'RPM dai sorgenti servono Rust/Cargo, `gcc`, `rpm-build` e le librerie runtime GTK 3 e WebKitGTK 4.1 (`gtk3` e `webkit2gtk4.1` su Fedora; `libgtk-3-0` e `libwebkit2gtk-4_1-0` su Tumbleweed). Lo script in `packaging/rpm/` rileva le dipendenze runtime native tramite RPM.
 
 ### Arch Linux e Manjaro
 
