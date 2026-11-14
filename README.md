@@ -1,6 +1,6 @@
 # old bad looking browser (a.k.a. A Rusty Browser)
 
-Browser desktop minimale scritto in Rust, con **WebKitGTK** come motore per visualizzare le pagine. 
+Browser desktop minimale scritto in Rust, con **WebKitGTK** come motore per visualizzare le pagine.
 
 ![Icona Rusty Browser](assets/rusty-browser.png)
 
@@ -17,17 +17,16 @@ A Rusty Browser è una piccola applicazione per Linux con una barra degli indiri
 ## 3. Perché provarlo
 
 - Interfaccia ridotta a indirizzo, vai, indietro, avanti e ricarica.
-- Temi dell'interfaccia chiaro e scuro, con **Sistema** selezionato all'avvio.
+- Temi dell'interfaccia chiaro e scuro, con **Sistema** selezionato all'avvio e scelta valida per la sessione corrente.
 - Motore WebKitGTK aggiornato tramite gli aggiornamenti del sistema.
 - JavaScript attivo; accessi e cookie funzionano durante la sessione e vengono scartati alla chiusura.
 - Navigazione temporanea: i dati dei siti non vengono conservati tra un avvio e l'altro.
 - Impostazioni WebKitGTK orientate a contenere l'uso di memoria: budget di pressione memoria da 512 MB per processo web, cache delle pagine e WebGL disattivati; accelerazione hardware usata solo quando richiesta dal sito.
 - Codice Rust e pacchetto Debian riproducibile con lo script incluso.
 
+La release 0.2.3 aveva disattivato completamente l'accelerazione hardware per ridurre la RAM, ma questo poteva impedire la visualizzazione di alcuni video. Dalla 0.2.4 WebKitGTK può attivarla quando la pagina ne ha bisogno. La 0.2.5 aggiunge una soglia di pressione memoria da 512 MB per ciascun processo web; WebKit prova a liberare memoria non essenziale quando serve. La 0.2.6 usa un profilo temporaneo che non conserva cookie, accessi, archiviazione dei siti o cache dopo la chiusura; i download vengono annullati per evitare di salvare file. La 0.2.7 aggiunge la scelta del tema dell'interfaccia. La 0.2.8 introduce ricette di pacchettizzazione per altre distribuzioni. La soglia RAM resta una richiesta di recupero, non un tetto rigido. Cache delle pagine e WebGL restano disattivati; i siti 3D basati su WebGL hanno funzioni limitate.
 
-## Tema dell'interfaccia
-
-Il selettore **Sistema / Chiaro / Scuro** è nella barra superiore. **Sistema** segue il tema GTK attivo sul desktop; le scelte manuali cambiano solo l'interfaccia del browser, non i colori dei siti. La scelta dura per la sessione corrente e non viene salvata.
+Il selettore **Sistema / Chiaro / Scuro** si trova nella barra superiore. **Sistema** usa il tema GTK attivo sul desktop; la scelta manuale cambia solo l'interfaccia di Rusty Browser, non i colori delle pagine visitate. La scelta vale per la sessione corrente e non viene salvata.
 
 ## Privacy e dati locali
 
@@ -62,10 +61,10 @@ sudo apt install rustc cargo dpkg libwebkit2gtk-4.1-0 curl
 
 ## Installazione
 
-Scarica `rusty-browser_0.2.7_amd64.deb` dalla cartella `dist/` del repository o dalla [pagina Releases](https://github.com/randomaccessgiulio/rusty-browser/releases/latest), poi esegui dalla cartella in cui hai salvato il file:
+Scarica `rusty-browser_0.2.8_amd64.deb` dalla [pagina Releases](https://github.com/randomaccessgiulio/rusty-browser/releases/latest), poi esegui dalla cartella in cui hai salvato il file:
 
 ```sh
-sudo apt install ./rusty-browser_0.2.7_amd64.deb
+sudo apt install ./rusty-browser_0.2.8_amd64.deb
 ```
 
 L'installazione aggiunge Rusty Browser al menu applicazioni. Per rimuoverlo:
@@ -73,6 +72,38 @@ L'installazione aggiunge Rusty Browser al menu applicazioni. Per rimuoverlo:
 ```sh
 sudo apt remove rusty-browser
 ```
+
+## Fedora, openSUSE, Arch e Manjaro
+
+Scarica il pacchetto della tua distribuzione dalla [release più recente](https://github.com/randomaccessgiulio/rusty-browser/releases/latest). Questi sono pacchetti indipendenti del progetto, non provengono dai repository ufficiali delle distribuzioni. La licenza del progetto è lasciata non specificata.
+
+### Fedora
+
+Per Fedora x86_64, scarica l'RPM `rusty-browser-0.2.8-1*.rpm` e installalo:
+
+```sh
+sudo dnf install ./rusty-browser-0.2.8-1*.rpm
+```
+
+### openSUSE Tumbleweed
+
+Per openSUSE Tumbleweed x86_64, scarica l'RPM `rusty-browser-0.2.8-1*.rpm` e installalo:
+
+```sh
+sudo zypper install ./rusty-browser-0.2.8-1*.rpm
+```
+
+Per creare l'RPM dai sorgenti servono Rust/Cargo, `rpm-build`, `pkg-config`, GTK 3 e i file di sviluppo WebKitGTK 4.1 (`webkit2gtk4.1-devel` su Fedora; `webkitgtk3-devel` su Tumbleweed). Lo script in `packaging/rpm/` rileva le dipendenze runtime native tramite RPM.
+
+### Arch Linux e Manjaro
+
+Scarica il file `rusty-browser-0.2.8-1-x86_64.pkg.tar.zst` dalla release e installalo:
+
+```sh
+sudo pacman -U ./rusty-browser-0.2.8-1-x86_64.pkg.tar.zst
+```
+
+Per compilarlo dai sorgenti, installa `base-devel`, Git, Rust/Cargo, GTK 3 e WebKitGTK 4.1, poi esegui `makepkg -si` dalla cartella `packaging/arch`. La PKGBUILD scarica il tag della versione corrispondente. Dopo la pubblicazione, la pipeline GitHub costruisce gli RPM e il pacchetto Arch e li allega alla release.
 
 ## Avvio e uso
 
@@ -106,6 +137,9 @@ Lo script compila la versione release e crea il `.deb` sia nella cartella `outpu
 - `assets/rusty-browser.svg` e `assets/rusty-browser.png` — icona vettoriale e anteprima raster.
 - `packaging/` — voce del menu desktop.
 - `package-deb.sh` — script per generare il pacchetto Debian.
+- `packaging/rpm/` — spec RPM e script di build per Fedora e openSUSE Tumbleweed.
+- `packaging/arch/PKGBUILD` — pacchetto compilato per Arch Linux e Manjaro.
+- `.github/workflows/distro-packages.yml` — compilazione automatica dei pacchetti alla pubblicazione di una release.
 - `CHANGELOG.md` — cronologia delle versioni.
 - `CREDITS.md` — crediti del progetto.
 
@@ -115,4 +149,4 @@ La licenza non è ancora stata definita dall'autore.
 
 ## Crediti
 
-Vedi [CREDITS.md](CREDITS.md): il progetto è ideato da **Giulio (@itsgiuliooo)** con il supporto di **ChatGPT**
+Vedi [CREDITS.md](CREDITS.md): il progetto è ideato da **Giulio (@itsgiuliooo)** con il supporto di **ChatGPT** per progettazione, sviluppo, icona e documentazione.

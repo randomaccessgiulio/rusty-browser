@@ -1,0 +1,86 @@
+name: Linux distribution packages
+
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: read
+
+jobs:
+  rpm-fedora:
+    name: RPM (Fedora)
+    runs-on: ubuntu-latest
+    container: fedora:latest
+    steps:
+      - name: Install build dependencies
+        run: dnf install -y cargo rust rpm-build pkgconf-pkg-config gtk3-devel webkit2gtk4.1-devel curl nodejs git tar gzip
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.release.tag_name }}
+      - name: Build RPM
+        run: packaging/rpm/build-rpm.sh
+      - uses: actions/upload-artifact@v4
+        with:
+          name: distro-rpm-fedora
+          path: dist/*.rpm
+          if-no-files-found: error
+
+  rpm-opensuse:
+    name: RPM (openSUSE Tumbleweed)
+    runs-on: ubuntu-latest
+    container: opensuse/tumbleweed:latest
+    steps:
+      - name: Install build dependencies
+        run: zypper --non-interactive install cargo rust rpm-build pkg-config gtk3-devel webkitgtk3-devel curl nodejs git tar gzip
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.release.tag_name }}
+      - name: Build RPM
+        run: packaging/rpm/build-rpm.sh
+      - uses: actions/upload-artifact@v4
+        with:
+          name: distro-rpm-opensuse
+          path: dist/*.rpm
+          if-no-files-found: error
+
+  arch-package:
+    name: Package (Arch Linux)
+    runs-on: ubuntu-latest
+    container: archlinux:base-devel
+    steps:
+      - name: Install build dependencies
+        run: pacman -Syu --noconfirm --needed git rust gtk3 webkit2gtk-4.1 curl nodejs
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.release.tag_name }}
+      - name: Build package as an unprivileged user
+        run: |
+          useradd --create-home builder
+          chown -R builder:builder "$GITHUB_WORKSPACE"
+          su builder -c "cd '$GITHUB_WORKSPACE/packaging/arch' && makepkg --noconfirm --cleanbuild"
+          mkdir -p dist
+          cp packaging/arch/*.pkg.tar.zst dist/
+      - uses: actions/upload-artifact@v4
+        with:
+          name: distro-package-arch
+          path: dist/*.pkg.tar.zst
+          if-no-files-found: error
+
+  attach-release-assets:
+    name: Attach packages to GitHub release
+    needs: [rpm-fedora, rpm-opensuse, arch-package]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: distro-*
+          path: release-assets
+          merge-multiple: true
+      - name: Attach native packages
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
+        run: gh release upload "$RELEASE_TAG" release-assets/* --repo "$GITHUB_REPOSITORY" --clobber

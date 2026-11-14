@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.2.8
+
+- Aggiunti il pacchetto RPM per Fedora e openSUSE Tumbleweed e la PKGBUILD per Arch Linux e Manjaro.
+- Aggiunta una pipeline GitHub Actions che costruisce i pacchetti nativi e li allega alle release.
+- Aggiornata la documentazione per installazione, dipendenze e stato della licenza del progetto.
+
 ## 0.2.7
 
 - Aggiunti i temi chiaro e scuro per l'interfaccia, con tema GTK di sistema predefinito.

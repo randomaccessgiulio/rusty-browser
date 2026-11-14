@@ -1,0 +1,30 @@
+pkgname=rusty-browser
+pkgver=0.2.8
+pkgrel=1
+pkgdesc='Minimal desktop web browser written in Rust with WebKitGTK'
+arch=('x86_64')
+url='https://github.com/randomaccessgiulio/rusty-browser'
+license=('unknown')
+depends=('curl' 'gtk3' 'webkit2gtk-4.1')
+makedepends=('git' 'rust')
+source=("${pkgname}::git+${url}.git#tag=v${pkgver}")
+sha256sums=('SKIP')
+
+build() {
+    cd "$srcdir/$pkgname"
+    cargo build --release --offline
+}
+
+package() {
+    cd "$srcdir/$pkgname"
+    install -Dm755 target/release/rusty-browser \
+        "$pkgdir/usr/bin/rusty-browser"
+    install -Dm644 packaging/rusty-browser.desktop \
+        "$pkgdir/usr/share/applications/rusty-browser.desktop"
+    install -Dm644 assets/rusty-browser.svg \
+        "$pkgdir/usr/share/icons/hicolor/scalable/apps/rusty-browser.svg"
+    install -Dm644 assets/rusty-browser.png \
+        "$pkgdir/usr/share/icons/hicolor/512x512/apps/rusty-browser.png"
+    install -Dm644 README.md "$pkgdir/usr/share/doc/$pkgname/README.md"
+    install -m644 CHANGELOG.md CREDITS.md "$pkgdir/usr/share/doc/$pkgname/"
+}
