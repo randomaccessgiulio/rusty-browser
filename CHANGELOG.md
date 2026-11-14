@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.2.7
+
+- Aggiunti i temi chiaro e scuro per l'interfaccia, con tema GTK di sistema predefinito.
+- Aggiunto un selettore compatto nella barra superiore; le scelte manuali durano per la sessione e non vengono salvate.
+
 ## 0.2.6
 
 - Attivato un profilo WebKitGTK temporaneo: cookie, accessi, cache e dati dei siti non vengono conservati dopo la chiusura.

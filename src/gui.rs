@@ -19,6 +19,7 @@ const WEBKIT_LOAD_FINISHED: c_int = 3;
 const WEBKIT_CACHE_MODEL_DOCUMENT_VIEWER: c_int = 0;
 const WEBKIT_HARDWARE_ACCELERATION_POLICY_ON_DEMAND: c_int = 0;
 const WEBKIT_MEMORY_LIMIT_MB: c_uint = 512;
+const GTK_STYLE_PROVIDER_PRIORITY_APPLICATION: c_uint = 600;
 
 #[link(name = "libgtk-3.so.0", modifiers = "+verbatim")]
 unsafe extern "C" {
@@ -38,6 +39,10 @@ unsafe extern "C" {
         padding: c_uint,
     );
     fn gtk_button_new_with_label(label: *const c_char) -> *mut Widget;
+    fn gtk_combo_box_text_new() -> *mut Widget;
+    fn gtk_combo_box_text_append_text(combo_box: *mut Widget, text: *const c_char);
+    fn gtk_combo_box_set_active(combo_box: *mut Widget, index: c_int);
+    fn gtk_combo_box_get_active(combo_box: *mut Widget) -> c_int;
     fn gtk_entry_new() -> *mut Widget;
     fn gtk_entry_set_text(entry: *mut Widget, text: *const c_char);
     fn gtk_entry_get_text(entry: *mut Widget) -> *const c_char;
@@ -52,11 +57,30 @@ unsafe extern "C" {
     fn gtk_widget_set_margin_top(widget: *mut Widget, margin: c_int);
     fn gtk_widget_set_margin_bottom(widget: *mut Widget, margin: c_int);
     fn gtk_widget_set_size_request(widget: *mut Widget, width: c_int, height: c_int);
+    fn gtk_widget_set_name(widget: *mut Widget, name: *const c_char);
     fn gtk_widget_set_tooltip_text(widget: *mut Widget, text: *const c_char);
     fn gtk_widget_grab_focus(widget: *mut Widget) -> c_int;
     fn gtk_widget_show_all(widget: *mut Widget);
+    fn gtk_css_provider_new() -> *mut c_void;
+    fn gtk_css_provider_load_from_data(
+        provider: *mut c_void,
+        data: *const c_char,
+        length: isize,
+        error: *mut *mut c_void,
+    ) -> c_int;
+    fn gtk_style_context_add_provider_for_screen(
+        screen: *mut c_void,
+        provider: *mut c_void,
+        priority: c_uint,
+    );
+    fn gtk_style_context_remove_provider_for_screen(screen: *mut c_void, provider: *mut c_void);
     fn gtk_main();
     fn gtk_main_quit();
+}
+
+#[link(name = "libgdk-3.so.0", modifiers = "+verbatim")]
+unsafe extern "C" {
+    fn gdk_screen_get_default() -> *mut c_void;
 }
 
 #[link(name = "libwebkit2gtk-4.1.so.0", modifiers = "+verbatim")]
@@ -109,6 +133,10 @@ struct Ui {
     address: *mut Widget,
     web_view: *mut Widget,
     status: *mut Widget,
+    theme_selector: *mut Widget,
+    css_provider: *mut c_void,
+    screen: *mut c_void,
+    custom_theme_active: bool,
 }
 
 pub(crate) fn run() -> Result<(), String> {
@@ -139,16 +167,34 @@ pub(crate) fn run() -> Result<(), String> {
         gtk_widget_set_hexpand(address, 1);
         let go = button("Vai", "Apri indirizzo");
 
-        for widget in [back, forward, reload, address, go] {
+        let theme_selector = gtk_combo_box_text_new();
+        for label in ["Sistema", "Chiaro", "Scuro"] {
+            let label = cstring(label);
+            gtk_combo_box_text_append_text(theme_selector, label.as_ptr());
+        }
+        gtk_combo_box_set_active(theme_selector, 0);
+        gtk_widget_set_size_request(theme_selector, 96, 28);
+        let theme_tooltip = cstring("Tema dell'interfaccia");
+        gtk_widget_set_tooltip_text(theme_selector, theme_tooltip.as_ptr());
+
+        for widget in [back, forward, reload, address, go, theme_selector] {
             gtk_box_pack_start(toolbar, widget, if widget == address { 1 } else { 0 }, 1, 0);
         }
-        for (widget, width) in [(back, 34), (forward, 34), (reload, 34), (go, 48)] {
+        for (widget, width) in [
+            (back, 34),
+            (forward, 34),
+            (reload, 34),
+            (go, 48),
+            (theme_selector, 96),
+        ] {
             gtk_widget_set_size_request(widget, width, 28);
         }
         gtk_widget_set_margin_start(toolbar, 5);
         gtk_widget_set_margin_end(toolbar, 5);
         gtk_widget_set_margin_top(toolbar, 5);
         gtk_widget_set_margin_bottom(toolbar, 5);
+        let toolbar_name = cstring("browser-toolbar");
+        gtk_widget_set_name(toolbar, toolbar_name.as_ptr());
 
         let web_context = ephemeral_memory_limited_web_context();
         if web_context.is_null() {
@@ -178,6 +224,9 @@ pub(crate) fn run() -> Result<(), String> {
         gtk_widget_set_margin_top(status, 5);
         gtk_widget_set_margin_bottom(status, 5);
 
+        let css_provider = gtk_css_provider_new();
+        let screen = gdk_screen_get_default();
+
         gtk_box_pack_start(root, toolbar, 0, 1, 0);
         gtk_box_pack_start(root, web_view, 1, 1, 0);
         gtk_box_pack_start(root, status, 0, 1, 0);
@@ -200,6 +249,10 @@ pub(crate) fn run() -> Result<(), String> {
             address,
             web_view,
             status,
+            theme_selector,
+            css_provider,
+            screen,
+            custom_theme_active: false,
         });
         let user_data = (&mut *ui as *mut Ui).cast::<c_void>();
 
@@ -209,6 +262,12 @@ pub(crate) fn run() -> Result<(), String> {
         connect(back, "clicked", on_back as *const (), user_data);
         connect(forward, "clicked", on_forward as *const (), user_data);
         connect(reload, "clicked", on_reload as *const (), user_data);
+        connect(
+            theme_selector,
+            "changed",
+            on_theme_changed as *const (),
+            user_data,
+        );
         connect(
             web_view,
             "load-changed",
@@ -225,6 +284,12 @@ pub(crate) fn run() -> Result<(), String> {
         gtk_widget_show_all(window);
         gtk_widget_grab_focus(address);
         gtk_main();
+        if ui.custom_theme_active && !ui.screen.is_null() && !ui.css_provider.is_null() {
+            gtk_style_context_remove_provider_for_screen(ui.screen, ui.css_provider);
+        }
+        if !ui.css_provider.is_null() {
+            g_object_unref(ui.css_provider);
+        }
         g_object_unref(ui.web_context);
         drop(ui);
     }
@@ -349,6 +414,84 @@ unsafe extern "C" fn on_reload(_widget: *mut Widget, user_data: *mut c_void) {
     let ui = &mut *user_data.cast::<Ui>();
     webkit_web_view_reload(ui.web_view);
 }
+
+unsafe extern "C" fn on_theme_changed(_widget: *mut Widget, user_data: *mut c_void) {
+    let ui = &mut *user_data.cast::<Ui>();
+    match gtk_combo_box_get_active(ui.theme_selector) {
+        1 => apply_theme(ui, Theme::Light),
+        2 => apply_theme(ui, Theme::Dark),
+        _ => apply_theme(ui, Theme::System),
+    }
+}
+
+#[derive(Clone, Copy)]
+enum Theme {
+    System,
+    Light,
+    Dark,
+}
+
+unsafe fn apply_theme(ui: &mut Ui, theme: Theme) {
+    if ui.css_provider.is_null() || ui.screen.is_null() {
+        return;
+    }
+
+    let css = match theme {
+        Theme::System => {
+            if ui.custom_theme_active {
+                gtk_style_context_remove_provider_for_screen(ui.screen, ui.css_provider);
+                ui.custom_theme_active = false;
+            }
+            return;
+        }
+        Theme::Light => LIGHT_THEME_CSS,
+        Theme::Dark => DARK_THEME_CSS,
+    };
+    let css = cstring(css);
+    if gtk_css_provider_load_from_data(ui.css_provider, css.as_ptr(), -1, ptr::null_mut()) == 0 {
+        return;
+    }
+    if !ui.custom_theme_active {
+        gtk_style_context_add_provider_for_screen(
+            ui.screen,
+            ui.css_provider,
+            GTK_STYLE_PROVIDER_PRIORITY_APPLICATION,
+        );
+        ui.custom_theme_active = true;
+    }
+}
+
+const LIGHT_THEME_CSS: &str = r#"
+window { background-color: #f4f5f7; color: #202124; }
+#browser-toolbar { background-color: #e9eaed; }
+button, entry, combobox, combobox button {
+    color: #202124;
+    background-image: none;
+    background-color: #ffffff;
+    border: 1px solid #c5c8ce;
+    border-radius: 4px;
+}
+button { padding: 4px 8px; }
+button:hover, combobox button:hover { background-color: #f1f3f4; }
+entry { padding: 5px 8px; }
+label { color: #202124; }
+"#;
+
+const DARK_THEME_CSS: &str = r#"
+window { background-color: #202124; color: #e8eaed; }
+#browser-toolbar { background-color: #292a2d; }
+button, entry, combobox, combobox button {
+    color: #e8eaed;
+    background-image: none;
+    background-color: #35363a;
+    border: 1px solid #5f6368;
+    border-radius: 4px;
+}
+button { padding: 4px 8px; }
+button:hover, combobox button:hover { background-color: #45464b; }
+entry { padding: 5px 8px; }
+label { color: #e8eaed; }
+"#;
 
 unsafe extern "C" fn on_load_changed(
     web_view: *mut Widget,

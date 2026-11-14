@@ -17,12 +17,17 @@ A Rusty Browser è una piccola applicazione per Linux con una barra degli indiri
 ## 3. Perché provarlo
 
 - Interfaccia ridotta a indirizzo, vai, indietro, avanti e ricarica.
+- Temi dell'interfaccia chiaro e scuro, con **Sistema** selezionato all'avvio.
 - Motore WebKitGTK aggiornato tramite gli aggiornamenti del sistema.
 - JavaScript attivo; accessi e cookie funzionano durante la sessione e vengono scartati alla chiusura.
 - Navigazione temporanea: i dati dei siti non vengono conservati tra un avvio e l'altro.
 - Impostazioni WebKitGTK orientate a contenere l'uso di memoria: budget di pressione memoria da 512 MB per processo web, cache delle pagine e WebGL disattivati; accelerazione hardware usata solo quando richiesta dal sito.
 - Codice Rust e pacchetto Debian riproducibile con lo script incluso.
 
+
+## Tema dell'interfaccia
+
+Il selettore **Sistema / Chiaro / Scuro** è nella barra superiore. **Sistema** segue il tema GTK attivo sul desktop; le scelte manuali cambiano solo l'interfaccia del browser, non i colori dei siti. La scelta dura per la sessione corrente e non viene salvata.
 
 ## Privacy e dati locali
 
@@ -57,10 +62,10 @@ sudo apt install rustc cargo dpkg libwebkit2gtk-4.1-0 curl
 
 ## Installazione
 
-Scarica `rusty-browser_0.2.6_amd64.deb` dalla cartella `dist/` del repository o dalla [pagina Releases](https://github.com/randomaccessgiulio/rusty-browser/releases/latest), poi esegui dalla cartella in cui hai salvato il file:
+Scarica `rusty-browser_0.2.7_amd64.deb` dalla cartella `dist/` del repository o dalla [pagina Releases](https://github.com/randomaccessgiulio/rusty-browser/releases/latest), poi esegui dalla cartella in cui hai salvato il file:
 
 ```sh
-sudo apt install ./rusty-browser_0.2.6_amd64.deb
+sudo apt install ./rusty-browser_0.2.7_amd64.deb
 ```
 
 L'installazione aggiunge Rusty Browser al menu applicazioni. Per rimuoverlo:

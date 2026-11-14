@@ -3,7 +3,7 @@ set -eu
 
 project_dir=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
 output_dir=$(dirname -- "$project_dir")
-package_version=0.2.6
+package_version=0.2.7
 architecture=$(dpkg --print-architecture)
 
 if [ "$architecture" != "amd64" ]; then
