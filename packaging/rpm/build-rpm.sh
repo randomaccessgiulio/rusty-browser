@@ -19,7 +19,7 @@ tar -czf "$build_root/SOURCES/${project_name}-${package_version}.tar.gz" \
     --exclude="${project_name}/.git" \
     --exclude="${project_name}/target" \
     --exclude="${project_name}/dist" \
-    --transform="s,^${project_name},${project_name}-${package_version}," \\
+    --transform="s,^${project_name},${project_name}-${package_version}," \
     -C "$(dirname -- "$project_dir")" "$project_name"
 
 rpmbuild -ba \
