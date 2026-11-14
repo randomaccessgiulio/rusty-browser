@@ -8,8 +8,9 @@ Source0:        %{name}-%{version}.tar.gz
 
 BuildRequires:  cargo
 BuildRequires:  rust
-BuildRequires:  pkgconfig(gtk+-3.0)
-BuildRequires:  pkgconfig(webkit2gtk-4.1)
+BuildRequires:  gcc
+BuildRequires:  libgtk-3.so.0()(64bit)
+BuildRequires:  libwebkit2gtk-4.1.so.0()(64bit)
 Requires:       curl
 
 %description
