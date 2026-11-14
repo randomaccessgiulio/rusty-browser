@@ -3,6 +3,16 @@ name: Linux distribution packages
 on:
   release:
     types: [published]
+  workflow_dispatch:
+    inputs:
+      release_tag:
+        description: Existing release tag to receive the packages
+        required: true
+        default: v0.2.8
+      source_ref:
+        description: Source revision to build
+        required: true
+        default: main
 
 permissions:
   contents: read
@@ -17,9 +27,9 @@ jobs:
         run: dnf install -y cargo rust rpm-build pkgconf-pkg-config gtk3-devel webkit2gtk4.1-devel curl nodejs git tar gzip
       - uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.release.tag_name }}
+          ref: ${{ github.event.release.tag_name || inputs.source_ref }}
       - name: Build RPM
-        run: packaging/rpm/build-rpm.sh
+        run: sh packaging/rpm/build-rpm.sh
       - uses: actions/upload-artifact@v4
         with:
           name: distro-rpm-fedora
@@ -35,9 +45,9 @@ jobs:
         run: zypper --non-interactive install cargo rust rpm-build pkg-config gtk3-devel webkitgtk3-devel curl nodejs git tar gzip
       - uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.release.tag_name }}
+          ref: ${{ github.event.release.tag_name || inputs.source_ref }}
       - name: Build RPM
-        run: packaging/rpm/build-rpm.sh
+        run: sh packaging/rpm/build-rpm.sh
       - uses: actions/upload-artifact@v4
         with:
           name: distro-rpm-opensuse
@@ -53,7 +63,7 @@ jobs:
         run: pacman -Syu --noconfirm --needed git rust gtk3 webkit2gtk-4.1 curl nodejs
       - uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.release.tag_name }}
+          ref: ${{ github.event.release.tag_name || inputs.source_ref }}
       - name: Build package as an unprivileged user
         run: |
           useradd --create-home builder
@@ -82,5 +92,5 @@ jobs:
       - name: Attach native packages
         env:
           GH_TOKEN: ${{ github.token }}
-          RELEASE_TAG: ${{ github.event.release.tag_name }}
+          RELEASE_TAG: ${{ github.event.release.tag_name || inputs.release_tag }}
         run: gh release upload "$RELEASE_TAG" release-assets/* --repo "$GITHUB_REPOSITORY" --clobber
