@@ -27,5 +27,5 @@ rpmbuild -ba \
     "$project_dir/packaging/rpm/rusty-browser.spec"
 
 mkdir -p "$project_dir/dist"
-find "$build_root/RPMS" -type f -name '*.rpm' -exec cp -f {} "$project_dir/dist/" \;
+find "$build_root/RPMS" -type f -name "${project_name}-${package_version}-*.rpm" -exec cp -f {} "$project_dir/dist/" \;
 echo "Pacchetto RPM creato in $project_dir/dist"
