@@ -68,7 +68,7 @@ jobs:
         run: |
           useradd --create-home builder
           chown -R builder:builder "$GITHUB_WORKSPACE"
-          su builder -c "cd '$GITHUB_WORKSPACE/packaging/arch' && makepkg --noconfirm --cleanbuild --nodebug"
+          su builder -c "cd '$GITHUB_WORKSPACE/packaging/arch' && makepkg --noconfirm --cleanbuild"
           mkdir -p dist
           cp packaging/arch/*.pkg.tar.zst dist/
       - uses: actions/upload-artifact@v4
