@@ -33,7 +33,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: distro-rpm-fedora
-          path: dist/*.rpm
+          path: dist/rusty-browser-[0-9]*.rpm
           if-no-files-found: error
 
   rpm-opensuse:
@@ -68,13 +68,13 @@ jobs:
         run: |
           useradd --create-home builder
           chown -R builder:builder "$GITHUB_WORKSPACE"
-          su builder -c "cd '$GITHUB_WORKSPACE/packaging/arch' && makepkg --noconfirm --cleanbuild"
+          su builder -c "cd '$GITHUB_WORKSPACE/packaging/arch' && makepkg --noconfirm --cleanbuild --nodebug"
           mkdir -p dist
           cp packaging/arch/*.pkg.tar.zst dist/
       - uses: actions/upload-artifact@v4
         with:
           name: distro-package-arch
-          path: dist/*.pkg.tar.zst
+          path: dist/rusty-browser-[0-9]*.pkg.tar.zst
           if-no-files-found: error
 
   attach-release-assets:
