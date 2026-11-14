@@ -1,6 +1,6 @@
 # old bad looking browser (a.k.a. A Rusty Browser)
 
-Browser desktop minimale scritto in Rust, con **WebKitGTK** come motore per visualizzare le pagine. Versione corrente: **0.2.6**.
+Browser desktop minimale scritto in Rust, con **WebKitGTK** come motore per visualizzare le pagine. 
 
 ![Icona Rusty Browser](assets/rusty-browser.png)
 
@@ -23,7 +23,6 @@ A Rusty Browser è una piccola applicazione per Linux con una barra degli indiri
 - Impostazioni WebKitGTK orientate a contenere l'uso di memoria: budget di pressione memoria da 512 MB per processo web, cache delle pagine e WebGL disattivati; accelerazione hardware usata solo quando richiesta dal sito.
 - Codice Rust e pacchetto Debian riproducibile con lo script incluso.
 
-La release 0.2.3 aveva disattivato completamente l'accelerazione hardware per ridurre la RAM, ma questo poteva impedire la visualizzazione di alcuni video. Dalla 0.2.4 WebKitGTK può attivarla quando la pagina ne ha bisogno. La 0.2.5 aggiunge una soglia di pressione memoria da 512 MB per ciascun processo web; WebKit prova a liberare memoria non essenziale quando serve. La 0.2.6 usa un profilo temporaneo che non conserva cookie, accessi, archiviazione dei siti o cache dopo la chiusura; i download vengono annullati per evitare di salvare file. La soglia RAM resta una richiesta di recupero, non un tetto rigido. Cache delle pagine e WebGL restano disattivati; i siti 3D basati su WebGL hanno funzioni limitate.
 
 ## Privacy e dati locali
 
@@ -111,4 +110,4 @@ La licenza non è ancora stata definita dall'autore.
 
 ## Crediti
 
-Vedi [CREDITS.md](CREDITS.md): il progetto è ideato da **Giulio (@itsgiuliooo)** con il supporto di **ChatGPT** per progettazione, sviluppo, icona e documentazione.
+Vedi [CREDITS.md](CREDITS.md): il progetto è ideato da **Giulio (@itsgiuliooo)** con il supporto di **ChatGPT**
