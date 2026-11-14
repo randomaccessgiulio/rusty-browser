@@ -3,6 +3,7 @@ pkgver=0.2.8
 pkgrel=1
 pkgdesc='Minimal desktop web browser written in Rust with WebKitGTK'
 arch=('x86_64')
+options=('!debug')
 url='https://github.com/randomaccessgiulio/rusty-browser'
 license=('unknown')
 depends=('curl' 'gtk3' 'webkit2gtk-4.1')
